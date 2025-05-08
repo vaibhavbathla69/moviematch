@@ -1,1 +1,1 @@
-web: gunicorn moviematch.wsgi --log-file -
+web: gunicorn reelrate.wsgi --log-file -
