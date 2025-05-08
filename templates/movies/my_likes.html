@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold mb-6 text-center">My Liked Movies</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-5 gap-6">
+        {% for liked_movie in liked_movies %}
+        <div class="bg-white rounded-lg shadow p-4">
+            <a href="{% url 'movie_detail' liked_movie.movie_id %}">
+                <img src="{{ liked_movie.movie_poster }}" alt="{{ liked_movie.movie_title }}" class="w-full h-80 object-cover rounded-md mb-4">
+                <h2 class="text-lg font-semibold">{{ liked_movie.movie_title }}</h2>
+            </a>
+            
+            
+            
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

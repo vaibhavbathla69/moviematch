@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <h2 class="text-xl font-bold mb-4">Search Results for "{{ query }}"</h2>
+
+    {% if movies %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {% for movie in movies %}
+                <div class="bg-white shadow rounded overflow-hidden">
+                    <a href="{% url 'movie_detail' movie.id %}">
+                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}"></a>
+                    <div class="p-2">
+                        <h3 class="font-semibold text-md">{{ movie.title }}</h3>
+                        <form method="POST" action="{% url 'like_movie' %}" class="like-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="movie_id" value="{{ movie.id }}">
+                            <input type="hidden" name="title" value="{{ movie.title }}">
+                            <input type="hidden" name="poster" value="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}">
+                            <button type="submit"
+                                class="like-btn bg-pink-500 text-white px-3 py-1 rounded hover:bg-pink-600 transition">
+                                {% if movie.id in liked_movie_ids %}✅ Liked{% else %}Like ❤️{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-600">No movies found.</p>
+    {% endif %}
+</div>
+<script>
+    document.querySelectorAll('.like-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const btn = this.querySelector('.like-btn');
+            const formData = new FormData(this);
+    
+            fetch(this.action, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.textContent = data.liked ? '✅ Liked' : 'Like ❤️';
+                btn.classList.toggle('bg-gray-400', data.liked);
+                btn.classList.toggle('bg-pink-500', !data.liked);
+            });
+        });
+    });
+    </script>
+{% endblock %}

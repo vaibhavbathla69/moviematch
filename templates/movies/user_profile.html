@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}{{ user_profile.user.username }}'s Profile{% endblock %}
+{% block content %}
+
+<div class="flex flex-col md:flex-row gap-6">
+    <!-- Sidebar -->
+    <div class="w-full md:w-1/3 bg-white rounded-lg shadow-md p-6 text-center">
+        {% if user_profile.profile_pic %}
+            <img src="{{ user_profile.profile_pic.url }}" class="w-32 h-32 mx-auto rounded-full mb-3 object-cover">
+        {% else %}
+            <div class="w-32 h-32 bg-gray-300 mx-auto rounded-full mb-3"></div>
+        {% endif %}
+        <h2 class="text-2xl font-bold">{{ user_profile.user.username }}</h2>
+
+        {% if user_profile.instagram %}
+            <a href="{{ user_profile.instagram }}" target="_blank" class="text-blue-600 block">@Instagram</a>
+        {% endif %}
+        <p class="text-gray-600 text-sm mt-2">{{ user_profile.bio|linebreaks }}</p>
+
+        <div class="mt-4">
+            {% if request.user == user_profile.user %}
+                <a href="{% url 'my_profile' %}" class="bg-blue-500 text-white px-4 py-2 rounded">Edit Profile</a>
+            {% else %}
+                <form method="post" action="{% url 'follow_toggle' user_profile.user.username %}" class="follow-form">
+                    {% csrf_token %}
+                    <button class=" follow-btn bg-blue-500 text-white px-4 py-2 rounded">
+                        {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="mt-4 text-sm text-gray-500">
+            <p><strong>Followers:</strong> {{ followers_count }}</p>
+            
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="w-full md:w-2/3 bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-xl font-bold mb-4">🎬 Liked Movies</h3>
+        {% if liked_movies %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% for movie in liked_movies %}
+                <div class="flex gap-4 border p-2 rounded-md">
+                    <a href="{% url 'movie_detail' movie.movie_id %}">
+                    <img src="{{ movie.movie_poster }}" alt="{{ movie.movie_title }}" class="w-20 h-28 object-cover rounded"></a>
+                    <div>
+                        <a href="{% url 'movie_detail' movie.movie_id %}"><h4 class="font-semibold">{{ movie.movie_title }}</h4></a>
+                        <p class="text-sm text-gray-600 italic">"{{ movie.comment|default:'No comment' }}"</p>
+                        <p class="text-xs text-gray-400 mt-1">Liked on {{ movie.liked_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500">No liked movies yet.</p>
+        {% endif %}
+    </div>
+</div>
+<script>
+    document.querySelectorAll('.follow-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const btn = this.querySelector('.follow-btn');
+            const formData = new FormData(this);
+    
+            fetch(this.action, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.textContent = data.follow ? 'unfollow' : 'follow';
+                btn.classList.toggle('bg-gray-400', data.follow);
+                btn.classList.toggle('bg-blue-500', !data.follow);
+            });
+        });
+    });
+    </script>
+{% endblock %}

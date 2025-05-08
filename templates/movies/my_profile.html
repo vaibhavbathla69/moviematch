@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-4">My Profile</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+</form>
+
+<h3 class="text-xl font-semibold mt-6 mb-2">My Liked Movies</h3>
+<ul>
+    {% for movie in liked_movies %}
+        <li class="mb-2">
+            <img src="{{ movie.movie_poster }}" class="w-16 inline-block mr-2">
+            {{ movie.movie_title }}<br>
+            <span class="text-gray-500 text-sm">Comment: {{ movie.comment }}</span>
+        </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

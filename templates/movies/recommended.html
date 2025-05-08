@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Recommended Movies{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-6 text-gray-800">🎯 Recommended for You</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for movie in recommended %}
+    <div class="bg-white rounded-lg shadow p-4">
+        <a href="{% url 'movie_detail' movie.id %}">
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}"
+                 class="w-full h-80 object-cover"></a>
+            <div class="p-4">
+                <a href="{% url 'movie_detail' movie.id %}"><h2 class="text-lg font-semibold">{{ movie.title }}</h2></a>
+                <p class="text-sm text-gray-500">Rating: {{ movie.vote_average }}</p>
+            </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

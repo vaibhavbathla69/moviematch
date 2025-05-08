@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Your Movie Matches{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-center text-blue-600">🎯 Your Movie Matches</h1>
+
+{% if matches %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for match in matches %}
+    <div class="bg-white rounded-lg shadow-md p-4 flex items-center gap-4">
+        {% if match.profile and match.profile.profile_pic %}
+            <img src="{{ match.profile.profile_pic.url }}" alt="{{ match.user.username }}"
+                 class="w-16 h-16 rounded-full object-cover">
+        {% else %}
+            <div class="w-16 h-16 bg-gray-300 rounded-full"></div>
+        {% endif %}
+
+        <div class="flex-1">
+            <a href="{% url 'user_profile' match.user.username %}" class="text-lg font-semibold text-blue-600 hover:underline">
+                {{ match.user.username }}
+            </a>
+            <p class="text-sm text-gray-500">{{ match.profile.bio|default:"No bio available" }}</p>
+            <div class="mt-1 text-sm text-green-600 font-semibold">
+                {{ match.match_percent }}% Match
+            </div>
+        </div>
+
+        <!-- Optional: Follow/Unfollow if desired -->
+        <!-- {% if request.user != match.user %}
+        <form method="post" action="{% url 'follow_toggle' match.user.username %}" class="follow-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{{ match.is_following|yesno:'unfollow,follow' }}">
+            <button class="follow-btn text-sm bg-blue-500 text-white px-3 py-1 rounded">
+                Follow
+            </button>
+        </form>
+        {% endif %} -->
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-center text-gray-600">No matches found yet. Like some movies to discover your matches!</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto p-6">
+
+    <!-- Search Bar -->
+    <form method="GET" action="{% url 'movie_search' %}" class="mb-6 flex gap-2">
+        <input type="text" name="query" placeholder="Search for a movie..."
+               class="flex-1 px-4 py-2 border rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-300">
+        <button type="submit"
+                class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Search</button>
+    </form>
+
+    <!-- Genre Filter -->
+    <form method="GET" action="{% url 'genre_filter' %}" class="mb-10">
+        <label for="genre_id" class="block mb-2 text-gray-700 font-semibold">Filter by Genre:</label>
+        <div class="flex gap-2">
+            <select name="genre_id" id="genre_id"
+                    class="px-4 py-2 border rounded shadow w-1/2 focus:outline-none focus:ring focus:ring-green-300">
+                {% for genre in genres %}
+                <option value="{{ genre.id }}">{{ genre.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit"
+                    class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Filter</button>
+        </div>
+    </form>
+
+    <!-- Recent Releases -->
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">🎬 Recent Releases</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for movie in recent_movies %}
+    <div class="bg-white rounded-lg shadow p-4">
+        <a href="{% url 'movie_detail' movie.id %}">
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
+            alt="{{ movie.title }}" class="w-full h-72 object-cover rounded mb-2">
+        </a>
+        <h3 class="font-semibold text-lg mb-1">{{ movie.title }}</h3>
+        <p class="text-sm text-gray-500 mb-3">Release: {{ movie.release_date }}</p>
+
+        {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'like_movie' %}" class="like-form">
+            {% csrf_token %}
+            <input type="hidden" name="movie_id" value="{{ movie.id }}">
+            <input type="hidden" name="title" value="{{ movie.title }}">
+            <input type="hidden" name="poster" value="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}">
+            <button type="submit"
+                class="like-btn bg-pink-500 text-white px-3 py-1 rounded hover:bg-pink-600 transition">
+                {% if movie.id in liked_movie_ids %}✅ Liked{% else %}Like ❤️{% endif %}
+            </button>
+        </form>
+            
+        {% else %}
+            <p class="text-sm text-gray-400 italic">Login to like this movie</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+</div>
+<script>
+    document.querySelectorAll('.like-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const btn = this.querySelector('.like-btn');
+            const formData = new FormData(this);
+    
+            fetch(this.action, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.textContent = data.liked ? '✅ Liked' : 'Like ❤️';
+                btn.classList.toggle('bg-gray-400', data.liked);
+                btn.classList.toggle('bg-pink-500', !data.liked);
+            });
+        });
+    });
+    </script>
+{% endblock %}
