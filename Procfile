@@ -1,1 +1,1 @@
-web: gunicorn IMDB.wsgi --log-file -
+web: gunicorn moviematch.wsgi --log-file -
