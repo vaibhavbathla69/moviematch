@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['moviematch.up.railway.app', 'localhost']
+ALLOWED_HOSTS = ['web-production-7b557.up.railway.app', 'localhost']
 
 
 
